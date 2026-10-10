@@ -94,13 +94,43 @@ public:
     }
 
     // Get pointer to array i (may be nullptr)
-    const int *AtArray(int i) {
+    const int *AtArray(int i) const {
+        return arrays[i];
+    }
+    // Non-const version returning mutable pointer
+    int *AtArray(int i) {
         return arrays[i];
     }
 
     // Access element reference
     int &At(int i, int j) {
         return arrays[i][j];
+    }
+
+    // Assignment operator – deep copy
+    CrossArray& operator=(const CrossArray &o) {
+        if (this != &o) {
+            // Delete existing data
+            for (int i = 0; i < maxLines; ++i) {
+                delete[] arrays[i];
+            }
+            delete[] arrays;
+            delete[] lengths;
+            // Copy size
+            maxLines = o.maxLines;
+            arrays = new int*[maxLines];
+            lengths = new int[maxLines];
+            for (int i = 0; i < maxLines; ++i) {
+                lengths[i] = o.lengths[i];
+                if (o.arrays[i]) {
+                    arrays[i] = new int[lengths[i]];
+                    std::memcpy(arrays[i], o.arrays[i], lengths[i] * sizeof(int));
+                } else {
+                    arrays[i] = nullptr;
+                }
+            }
+        }
+        return *this;
     }
 
     // Destructor
